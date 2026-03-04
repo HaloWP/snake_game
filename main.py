@@ -38,7 +38,7 @@ class Apple(GameObject):
         self.randomize_position()
 
     def randomize_position(self):
-        """Устанавливает случайную позицию яблока."""
+        """Устанавливает случайную позицию яблока на поле."""
         self.position = (
             random.randint(0, GRID_WIDTH - 1) * GRID_SIZE,
             random.randint(0, GRID_HEIGHT - 1) * GRID_SIZE
@@ -108,3 +108,50 @@ class Snake(GameObject):
         if self.last:
             rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, rect)
+
+
+def handle_keys(snake: Snake):
+    """Обрабатывает нажатия клавиш для управления змейкой."""
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            raise SystemExit
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and snake.direction != DOWN:
+                snake.next_direction = UP
+            elif event.key == pygame.K_DOWN and snake.direction != UP:
+                snake.next_direction = DOWN
+            elif event.key == pygame.K_LEFT and snake.direction != RIGHT:
+                snake.next_direction = LEFT
+            elif event.key == pygame.K_RIGHT and snake.direction != LEFT:
+                snake.next_direction = RIGHT
+
+
+def main():
+    """Основной игровой цикл."""
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Змейка")
+    clock = pygame.time.Clock()
+
+    snake = Snake()
+    apple = Apple()
+
+    while True:
+        clock.tick(20)
+        handle_keys(snake)
+        snake.update_direction()
+        snake.move()
+
+        if snake.get_head_position() == apple.position:
+            snake.length += 1
+            apple.randomize_position()
+
+        screen.fill(BOARD_BACKGROUND_COLOR)
+        snake.draw(screen)
+        apple.draw(screen)
+        pygame.display.update()
+
+
+if __name__ == "__main__":
+    main()
